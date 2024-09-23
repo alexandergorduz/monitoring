@@ -209,7 +209,7 @@ class PredictorsMonitor:
             pd.DataFrame: summary DataFrame with monitoring information.
         """
 
-        res = pd.DataFrame(columns=['PRED_NAME', 'PRED_TYPE', 'CHECK_TYPE', 'CHECK_VALUE', 'CHECK_STATE'])
+        res = []
 
         for pred in self.preds:
 
@@ -268,9 +268,9 @@ class PredictorsMonitor:
                     row['CHECK_VALUE'] = f'{None}'
                 pred_res.append(row)
             
-            res = pd.concat([res, pd.DataFrame(pred_res)], ignore_index=True)
+            res.extend(pred_res)
         
-        return res
+        return pd.DataFrame(res, columns=['PRED_NAME', 'PRED_TYPE', 'CHECK_TYPE', 'CHECK_VALUE', 'CHECK_STATE'])
 
 
 
@@ -537,7 +537,7 @@ class PredictionsMonitor:
             pd.DataFrame: summary DataFrame with monitoring information.
         """
 
-        res = pd.DataFrame(columns=[f'{self.prefix}_NAME', 'CHECK_TYPE', 'CHECK_VALUE', 'CHECK_STATE'])
+        res = []
 
         if self.task == "classification":
 
@@ -548,7 +548,7 @@ class PredictionsMonitor:
             if abs(etalon_mean_enthropy - test_mean_enthropy) > etalon_mean_enthropy * self.checks['ALL__MEAN_ENTHROPY']:
                 row['CHECK_STATE'] = 'NOT_OK'
             
-            res = pd.concat([res, pd.DataFrame([row])], ignore_index=True)
+            res.append(row)
         
         for ch_num in range(self.ch_amt):
 
@@ -599,6 +599,6 @@ class PredictionsMonitor:
                     row['CHECK_STATE'] = 'NOT_OK'
                 ch_res.append(row)
             
-            res = pd.concat([res, pd.DataFrame(ch_res)], ignore_index=True)
+            res.extend(ch_res)
         
-        return res
+        return pd.DataFrame(res, columns=[f'{self.prefix}_NAME', 'CHECK_TYPE', 'CHECK_VALUE', 'CHECK_STATE'])
