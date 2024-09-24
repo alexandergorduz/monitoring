@@ -341,17 +341,7 @@ class PredictionsMonitor:
         
         self.ch_amt = data.shape[1]
 
-        self.checks = {}
-
-        if self.task == "classification":
-
-            self.checks['ALL__MEAN_ENTHROPY'] = 0.1
-        
-        elif self.task == "regression":
-
-            self.checks.update(Dict.fromkeys([f'{self.prefix}_{ch_num}__MEAN' for ch_num in range(self.ch_amt)], 0.1))
-        
-        self.checks.update(Dict.fromkeys([f'{self.prefix}_{ch_num}__PSI' for ch_num in range(self.ch_amt)], 0.2))
+        self.checks = Dict.fromkeys([f'{self.prefix}_{ch_num}__PSI' for ch_num in range(self.ch_amt)], 0.2)
         self.checks.update(Dict.fromkeys([f'{self.prefix}_{ch_num}__OUTL_PERC' for ch_num in range(self.ch_amt)], 0.1))
 
         if checks is not None:
@@ -375,6 +365,7 @@ class PredictionsMonitor:
         if self.task == "classification":
 
             self.etalon_stat['MEAN_ENTHROPY'] = round(np.mean(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
+            self.etalon_stat['STD_ENTHROPY'] = round(np.std(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
         
         for ch_num in range(self.ch_amt):
 
@@ -388,6 +379,7 @@ class PredictionsMonitor:
             if self.task == "regression":
 
                 ch_stat['MEAN'] = round(mean, 5)
+                ch_stat['STD'] = round(std, 5)
             
             left = mean - 3 * std
             right = mean + 3 * std
@@ -486,6 +478,7 @@ class PredictionsMonitor:
         if self.task == "classification":
 
             test_stat['MEAN_ENTHROPY'] = round(np.mean(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
+            test_stat['STD_ENTHROPY'] = round(np.std(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
         
         for ch_num in range(self.ch_amt):
 
@@ -499,6 +492,7 @@ class PredictionsMonitor:
             if self.task == "regression":
 
                 ch_stat['MEAN'] = round(mean, 5)
+                ch_stat['STD'] = round(std, 5)
             
             left = mean - 3 * std
             right = mean + 3 * std
@@ -542,10 +536,11 @@ class PredictionsMonitor:
         if self.task == "classification":
 
             etalon_mean_enthropy = etalon['MEAN_ENTHROPY']
+            etalon_std_enthropy = etalon['STD_ENTHROPY']
             test_mean_enthropy = test['MEAN_ENTHROPY']
 
             row = {f'{self.prefix}_NAME': 'ALL', 'CHECK_TYPE': 'MEAN_ENTHROPY', 'CHECK_VALUE': test_mean_enthropy, 'CHECK_STATE': 'OK'}
-            if abs(etalon_mean_enthropy - test_mean_enthropy) > etalon_mean_enthropy * self.checks['ALL__MEAN_ENTHROPY']:
+            if test_mean_enthropy < etalon_mean_enthropy - etalon_std_enthropy or etalon_mean_enthropy + etalon_std_enthropy < test_mean_enthropy:
                 row['CHECK_STATE'] = 'NOT_OK'
             
             res.append(row)
@@ -590,12 +585,13 @@ class PredictionsMonitor:
             if self.task == "regression":
 
                 etalon_mean = etalon[f'{self.prefix}_{ch_num}']['MEAN']
+                etalon_std = etalon[f'{self.prefix}_{ch_num}']['STD']
                 test_mean = test[f'{self.prefix}_{ch_num}']['MEAN']
 
                 row = row_tmplt.copy()
                 row['CHECK_TYPE'] = 'MEAN'
                 row['CHECK_VALUE'] = test_mean
-                if abs(etalon_mean - test_mean) > abs(etalon_mean) * self.checks[f'{self.prefix}_{ch_num}__MEAN']:
+                if test_mean < etalon_mean - etalon_std or etalon_mean + etalon_std < test_mean:
                     row['CHECK_STATE'] = 'NOT_OK'
                 ch_res.append(row)
             
