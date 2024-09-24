@@ -342,7 +342,7 @@ class PredictionsMonitor:
         self.ch_amt = data.shape[1]
 
         self.checks = Dict.fromkeys([f'{self.prefix}_{ch_num}__PSI' for ch_num in range(self.ch_amt)], 0.2)
-        self.checks.update(Dict.fromkeys([f'{self.prefix}_{ch_num}__OUTL_PERC' for ch_num in range(self.ch_amt)], 0.1))
+        self.checks.update(Dict.fromkeys([f'{self.prefix}_{ch_num}__OUTL_PERC' for ch_num in range(self.ch_amt)], 0.01))
 
         if checks is not None:
 
