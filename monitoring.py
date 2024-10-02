@@ -71,7 +71,9 @@ class PredictorsMonitor:
             av_amt = sr.notna().sum()
             na_amt = sr.isna().sum()
 
-            pred_stat['NA_PERC'] = round(na_amt / (av_amt + na_amt), 5)
+            na_perc = round(na_amt / (av_amt + na_amt), 5)
+
+            pred_stat['NA_PERC'] = na_perc.item()
 
             pred_stat['BINS'] = {}
 
@@ -160,7 +162,9 @@ class PredictorsMonitor:
             av_amt = sr.notna().sum()
             na_amt = sr.isna().sum()
 
-            pred_stat['NA_PERC'] = round(na_amt / (av_amt + na_amt), 5)
+            na_perc = round(na_amt / (av_amt + na_amt), 5)
+
+            pred_stat['NA_PERC'] = na_perc.item()
 
             pred_stat['BINS'] = {}
 
@@ -364,8 +368,11 @@ class PredictionsMonitor:
 
         if self.task == "classification":
 
-            self.etalon_stat['MEAN_ENTHROPY'] = round(np.mean(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
-            self.etalon_stat['STD_ENTHROPY'] = round(np.std(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
+            mean_enthropy = round(np.mean(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
+            std_enthropy = round(np.std(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
+
+            self.etalon_stat['MEAN_ENTHROPY'] = mean_enthropy.item()
+            self.etalon_stat['STD_ENTHROPY'] = std_enthropy.item()
         
         for ch_num in range(self.ch_amt):
 
@@ -373,8 +380,8 @@ class PredictionsMonitor:
 
             ch_stat = {}
 
-            mean = ch.mean()
-            std = ch.std()
+            mean = ch.mean().item()
+            std = ch.std().item()
 
             if self.task == "regression":
 
@@ -477,8 +484,11 @@ class PredictionsMonitor:
 
         if self.task == "classification":
 
-            test_stat['MEAN_ENTHROPY'] = round(np.mean(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
-            test_stat['STD_ENTHROPY'] = round(np.std(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
+            mean_enthropy = round(np.mean(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
+            std_enthropy = round(np.std(-np.sum(data * np.log(data + 1e-10), axis=1)), 5)
+
+            test_stat['MEAN_ENTHROPY'] = mean_enthropy.item()
+            test_stat['STD_ENTHROPY'] = std_enthropy.item()
         
         for ch_num in range(self.ch_amt):
 
@@ -486,8 +496,8 @@ class PredictionsMonitor:
 
             ch_stat = {}
 
-            mean = ch.mean()
-            std = ch.std()
+            mean = ch.mean().item()
+            std = ch.std().item()
 
             if self.task == "regression":
 
